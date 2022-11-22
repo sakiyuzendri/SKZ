@@ -32,6 +32,5 @@ def home(ticker: str, instrument_type: str = "stocks"):
     df.reset_index(inplace=True)
     df.columns = df.columns.str.lower()
     df["date"] = df["date"].dt.strftime("%Y-%m-%d")
-    # rename date to time
     df.rename(columns={"date": "time"}, inplace=True)
     return df.to_dict(orient="records")
