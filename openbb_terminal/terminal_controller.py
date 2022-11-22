@@ -59,6 +59,7 @@ from openbb_terminal.helper_funcs import parse_and_split_input
 from openbb_terminal.keys_model import first_time_user
 from openbb_terminal.common import feedparser_view
 from openbb_terminal.reports.reports_model import ipykernel_launcher
+from openbb_terminal.main import app
 
 # pylint: disable=too-many-public-methods,import-outside-toplevel, too-many-function-args
 # pylint: disable=too-many-branches,no-member,C0302,too-many-return-statements
@@ -198,9 +199,9 @@ class TerminalController(BaseController):
             prog="rest",
             description="rest",
         )
-        gui_parser = self.parse_known_args_and_warn(parse, other_args)
-        if gui_parser:
-            uvicorn.run("main:app", host="0.0.0.0", port=8000)
+        ns_parser = self.parse_known_args_and_warn(parse, other_args)
+        if ns_parser:
+            uvicorn.run(app, host="0.0.0.0", port=8000)
 
     def call_news(self, other_args: List[str]) -> None:
         """Process news command."""
