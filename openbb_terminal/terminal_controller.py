@@ -95,6 +95,7 @@ class TerminalController(BaseController):
         "sources",
         "forecast",
         "futures",
+        "rest",
     ]
 
     PATH = "/"
@@ -180,6 +181,18 @@ class TerminalController(BaseController):
         mt.add_menu("reports")
         console.print(text=mt.menu_text, menu="Home")
         self.update_runtime_choices()
+
+    def call_rest(self, other_args: List[str]) -> None:
+        import uvicorn
+
+        parse = argparse.ArgumentParser(
+            add_help=False,
+            prog="rest",
+            description="rest",
+        )
+        gui_parser = self.parse_known_args_and_warn(parse, other_args)
+        if gui_parser:
+            uvicorn.run("main:app", host="0.0.0.0", port=8000)
 
     def call_news(self, other_args: List[str]) -> None:
         """Process news command."""
