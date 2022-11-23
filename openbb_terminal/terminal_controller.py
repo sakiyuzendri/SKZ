@@ -193,7 +193,14 @@ class TerminalController(BaseController):
 
     def call_rest(self, other_args: List[str]) -> None:
         import uvicorn
+        import socket
 
+        # TODO: do something besides this
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if s.connect_ex(("localhost", 8172)) == 0:
+                print("Port 8172 already in use", file=sys.stderr)
+                self.queue.insert(0, "quit")
+                return
         parse = argparse.ArgumentParser(
             add_help=False,
             prog="rest",
@@ -201,7 +208,7 @@ class TerminalController(BaseController):
         )
         ns_parser = self.parse_known_args_and_warn(parse, other_args)
         if ns_parser:
-            uvicorn.run(app, host="0.0.0.0", port=8000)
+            uvicorn.run(app, host="0.0.0.0", port=8172)
 
     def call_news(self, other_args: List[str]) -> None:
         """Process news command."""
