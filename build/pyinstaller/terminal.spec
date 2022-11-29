@@ -106,7 +106,10 @@ analysis_kwargs = dict(
     hiddenimports=hidden_imports,
     hookspath=["build/pyinstaller/hooks"],
     hooksconfig={},
-    runtime_hooks=["build/pyinstaller/hooks/hook-debugpy.py"],
+    runtime_hooks=[
+        "build/pyinstaller/hooks/hook-debugpy.py",
+        "build/pyinstaller/hooks/hook-inspect.py",
+    ],
     excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
