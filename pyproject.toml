@@ -1,23 +1,23 @@
 [tool.poetry]
-name = "OpenBBTerminal"
-version = "1.9.1"
+name = "openbb"
+version = "2.0.0"
 description = "Investment Research for Everyone, Anywhere."
 license = "MIT"
 authors = ["Didier Rodrigues Lopes"]
 packages = [
     { include = "openbb_terminal" },
 ]
-readme = "openbb_terminal/SDK_README.md"
-homepage = "https://openbb.co/"
+readme = "website/content/sdk/quickstart/installation.md"
+homepage = "https://openbb.co"
 repository = "https://github.com/OpenBB-finance/OpenBBTerminal"
-documentation = "https://openbb-finance.github.io/OpenBBTerminal/"
+documentation = "https://docs.openbb.co/sdk"
 
 [tool.poetry.scripts]
 openbb = 'openbb_terminal.terminal_controller:parse_args_and_run'
 
 [tool.poetry.dependencies]
 python = "^3.8,<3.11, !=3.9.7"
-scipy = "^1.8.1"
+scipy = "^1.9.3"
 iso8601 = "^0.1.14"
 FundamentalAnalysis = "^0.2.6"
 requests = "^2.25.1"
@@ -33,7 +33,6 @@ pytrends = "^4.7.3"
 matplotlib = "^3.3.3"
 plotly = "^5.0.0"
 prompt-toolkit = "^3.0.16"
-jupyter = "^1.0.0"
 jupyterlab = "^3.2.4"
 mplfinance = "^0.12.7-alpha.7"
 seaborn = "^0.11.0"
@@ -69,7 +68,7 @@ jsonschema = "^3.2.0"
 pandas = "^1.5.0"
 pandas-market-calendars = "~3.2"
 ipympl = "^0.8.2"
-voila = "^0.3.0"
+voila = ">=0.3.0"
 rich = "^12.6.0"
 investpy = "^1.0.7"
 dnspython = "^2.1.0"
@@ -79,7 +78,7 @@ ascii-magic = "^1.6"
 squarify = "^0.4.3"
 finnhub-python = "^2.4.10"
 linearmodels = "^4.25"
-ipywidgets = "^7.7.0"
+ipywidgets = "^8.0.2"
 Jinja2 = "^3.0.3"
 Riskfolio-Lib = {version = "^3.1.1", optional = true}
 ccxt = "^1.91.60"
@@ -97,7 +96,7 @@ watchdog = "^2.1.9"
 pythclient = "^0.1.2"
 ipyflex = "^0.2.4"
 "ruamel.yaml" = "^0.17.21"
-setuptools = "<65.6.0"
+setuptools = "<65.5.0"
 investiny = "^0.5.0"
 numpy = "1.23.4"
 papermill = "^2.4.0"
@@ -107,6 +106,10 @@ protobuf = "3.20.1"
 pytorch-lightning = {version = "1.6.5", optional = true}
 u8darts = {extras = ["torch"], version = "0.22.0", optional = true}
 docstring-parser = {version = "^0.15", optional = true}
+grpcio = "<1.51.0"
+jupyterlab-widgets = "^3.0.3"
+fastapi = "^0.88.0"
+uvicorn = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
@@ -118,7 +121,7 @@ codespell = "^2.0.0"
 pyupgrade = "^2.11.0"
 sphinx = "^4.5.0"
 myst-parser = "^0.15.2"
-black = {extras = ["jupyter"], version = "^22.1.0"}
+black =  {version = "^22.1.0", extras = ["jupyter"]}
 bandit = "^1.7.0"
 coverage = ">=5.5"
 vcrpy = "^4.1.1"
@@ -143,7 +146,7 @@ installer = ["pyinstaller"]
 doc = ["docstring-parser"]
 
 [build-system]
-requires = ["setuptools<65.6.0", "poetry-core>=1.0.0"]
+requires = ["setuptools<65.5.0", "poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pydocstyle]
