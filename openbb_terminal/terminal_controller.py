@@ -812,9 +812,10 @@ class TerminalController(BaseController):
 def terminal(jobs_cmds: List[str] = None, test_mode=False):
     """Terminal Menu."""
     if not test_mode:
-        setup_logging()
-    logger.info("START")
-    log_all_settings()
+        #setup_logging()
+    # logger.info("START")
+    # log_all_settings()
+        print("goodbye")
 
     if jobs_cmds is not None and jobs_cmds:
         logger.info("INPUT: %s", "/".join(jobs_cmds))
