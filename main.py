@@ -4,6 +4,8 @@ from pathlib import Path
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import plotly
+import plotly.express as px
 
 from openbb_terminal.sdk import openbb
 
@@ -51,6 +53,29 @@ def home(ticker: str, instrument_type: str = "stocks"):
     df["date"] = df["date"].dt.strftime("%Y-%m-%d")
     df.rename(columns={"date": "time"}, inplace=True)
     return df.to_dict(orient="records")
+
+
+# example of function that works on react already
+@app.get("/plot", status_code=200)
+def plot():
+    df = pd.DataFrame({
+        "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
+        "Amount": [4, 1, 2, 2, 4, 5],
+        "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
+    })
+    fig = px.bar(df, x="Fruit", y="Amount", barmode="group", color="City", color_discrete_sequence=["#e4003a", "#00ACFF"])
+    fig.update_layout({
+    "font_color": "white",
+    'plot_bgcolor': 'rgba(0, 0, 0, 0)',
+    'paper_bgcolor': 'rgba(0, 0, 0, 0)',
+    })
+    graphJSON = plotly.io.to_json(fig, pretty=True)
+    return graphJSON
+
+@app.get("/trailmap", status_code=200)
+def trailmap():
+    test = initialize()
+    return test
 
 
 def get_trailmaps() -> list:
@@ -168,8 +193,3 @@ def initialize():
 
     return index_dict
 
-
-test = initialize()
-pd.set_option("display.max_colwidth", None)
-pd.set_option("display.max_rows", None)
-print(json.dumps(test, indent=4))
