@@ -1,12 +1,13 @@
 from inspect import Parameter, signature
-from typing import Any, Dict
+from typing import NamedTuple, Dict, Any
 from pathlib import Path
 import pandas as pd
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 
 from openbb_terminal.sdk import openbb
-
+from openbb_terminal.core.library.trail_map import (
+    FORECASTING_TOOLKIT_ENABLED as FORECASTING,
+    OPTIMIZATION_TOOLKIT_ENABLED as OPTIMIZATION,
+)
 from openbb_terminal.core.config.paths import MISCELLANEOUS_DIRECTORY
 
 MAP_PATH = MISCELLANEOUS_DIRECTORY / "library" / "trail_map.csv"
@@ -15,35 +16,15 @@ MAP_OPTIMIZATION_PATH = (
     MISCELLANEOUS_DIRECTORY / "library" / "trail_map_optimization.csv"
 )
 
-from openbb_terminal.core.library.trail_map import (
-    FORECASTING_TOOLKIT_ENABLED as FORECASTING,
-    MISCELLANEOUS_DIRECTORY,
-    OPTIMIZATION_TOOLKIT_ENABLED as OPTIMIZATION,
-)
 
-app = FastAPI()
-
-origins = ["*"]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+class CleanResponse(NamedTuple):
+    target: str
+    raw: bool
+    parameters: Dict[str, Any]
 
 
-@app.get("/check", status_code=200)
-def check_rest():
-    return "success"
-
-
-@app.post("/sdk", status_code=200)
-def access_sdk(request: Dict[str, Any]):
-    print(request)
+def clean_request(request: Dict[str, Any]) -> CleanResponse:
     target = request.get("trailmap", "")
-    target_list = target.split(".")
     raw = request.get("raw", True)
     parameters = request.get("parameters", {})
     if not isinstance(raw, str):
@@ -54,26 +35,13 @@ def access_sdk(request: Dict[str, Any]):
         clean_raw = False
     else:
         clean_raw = raw
-    if not target:
-        raise HTTPException(status_code=400, detail="No 'trailmap' key included")
-    if not isinstance(clean_raw, bool):
-        raise HTTPException(status_code=400, detail="Key 'raw' mut be a boolean")
-    if not clean_raw:
-        raise HTTPException(status_code=400, detail="Raw must be true for now")
-
-    final_func = openbb
-    for item in target_list:
-        final_func = getattr(final_func, item)
-    response = final_func(**parameters)
-    if isinstance(response, pd.DataFrame):
-        response = response.to_json()
-    return response
+    return CleanResponse(target, clean_raw, parameters)
 
 
-@app.get("/trailmap", status_code=200)
-def trailmap():
-    test = initialize()
-    return test
+def clean_response(item: Any):
+    if isinstance(item, pd.DataFrame):
+        return item.to_json()
+    return item
 
 
 def get_trailmaps() -> list:
@@ -136,7 +104,6 @@ def add_todict(
     return d
 
 
-# @app.get("/app", status_code=200)
 def initialize():
     trailmaps = get_trailmaps()
     index_dict = {}
@@ -184,8 +151,8 @@ def initialize():
                         parms_dict[param]["required"] = True
                     elif params[param].default is not Parameter.empty:
                         parms_dict[param]["default"] = params[param].default
-                except:
-                    print(param)
+                except Exception as e:
+                    print(f"{param}: {e}")
 
             index_dict = add_todict(index_dict, tmp, cmd_name, trail, parms_dict)
 
