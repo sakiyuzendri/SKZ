@@ -1,11 +1,9 @@
 from inspect import Parameter, signature
-import json
+from typing import Any, Dict
 from pathlib import Path
 import pandas as pd
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import plotly
-import plotly.express as px
 
 from openbb_terminal.sdk import openbb
 
@@ -41,36 +39,32 @@ def check_rest():
     return "success"
 
 
-@app.get("/", status_code=200)
-def home(ticker: str, instrument_type: str = "stocks"):
-    df = pd.DataFrame()
-    if instrument_type == "stocks":
-        df = openbb.stocks.load(ticker)
-    elif instrument_type == "crypto":
-        df = openbb.crypto.load(ticker)
-    df.reset_index(inplace=True)
-    df.columns = df.columns.str.lower()
-    df["date"] = df["date"].dt.strftime("%Y-%m-%d")
-    df.rename(columns={"date": "time"}, inplace=True)
-    return df.to_dict(orient="records")
+@app.post("/sdk", status_code=200)
+def access_sdk(request: Dict[str, Any]):
+    target = request.get("trailmap", "")
+    target_list = target.split(".")
+    raw = request.get("raw", True)
+    parameters = request.get("parameters", {})
+    if not isinstance(raw, str):
+        clean_raw = raw
+    elif raw.lower() == "true":
+        clean_raw = True
+    elif raw.lower() == "false":
+        clean_raw = False
+    else:
+        clean_raw = raw
+    if not target:
+        raise HTTPException(status_code=400, detail="No 'trailmap' key included")
+    if not isinstance(clean_raw, bool):
+        raise HTTPException(status_code=400, detail="Key 'raw' mut be a boolean")
+    if not clean_raw:
+        raise HTTPException(status_code=400, detail="Raw must be true for now")
 
+    final_func = openbb
+    for item in target_list:
+        final_func = getattr(final_func, item)
+    return final_func(**parameters)
 
-# example of function that works on react already
-@app.get("/plot", status_code=200)
-def plot():
-    df = pd.DataFrame({
-        "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
-        "Amount": [4, 1, 2, 2, 4, 5],
-        "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"]
-    })
-    fig = px.bar(df, x="Fruit", y="Amount", barmode="group", color="City", color_discrete_sequence=["#e4003a", "#00ACFF"])
-    fig.update_layout({
-    "font_color": "white",
-    'plot_bgcolor': 'rgba(0, 0, 0, 0)',
-    'paper_bgcolor': 'rgba(0, 0, 0, 0)',
-    })
-    graphJSON = plotly.io.to_json(fig, pretty=True)
-    return graphJSON
 
 @app.get("/trailmap", status_code=200)
 def trailmap():
@@ -192,4 +186,3 @@ def initialize():
             index_dict = add_todict(index_dict, tmp, cmd_name, trail, parms_dict)
 
     return index_dict
-
