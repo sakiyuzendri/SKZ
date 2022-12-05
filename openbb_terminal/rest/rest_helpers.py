@@ -41,6 +41,8 @@ def clean_request(request: Dict[str, Any]) -> CleanResponse:
 def clean_response(item: Any):
     if isinstance(item, pd.DataFrame):
         return item.to_json()
+    if not item:
+        return {}
     return item
 
 
