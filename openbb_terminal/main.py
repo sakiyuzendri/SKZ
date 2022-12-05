@@ -41,6 +41,7 @@ def check_rest():
 
 @app.post("/sdk", status_code=200)
 def access_sdk(request: Dict[str, Any]):
+    print(request)
     target = request.get("trailmap", "")
     target_list = target.split(".")
     raw = request.get("raw", True)
@@ -63,7 +64,10 @@ def access_sdk(request: Dict[str, Any]):
     final_func = openbb
     for item in target_list:
         final_func = getattr(final_func, item)
-    return final_func(**parameters)
+    response = final_func(**parameters)
+    if isinstance(response, pd.DataFrame):
+        response = response.to_json()
+    return response
 
 
 @app.get("/trailmap", status_code=200)
