@@ -100,7 +100,7 @@ def get_trailmaps() -> list:
 
 
 def add_todict(
-    d: dict, location_path: list, cmd_name: str, full_trail: str, parms: dict = None
+    d: dict, location_path: list, cmd_name: str, full_trail: str, params: dict = None
 ) -> dict:
     """Adds the trailmap to the dictionary. This function creates the dictionary paths to the function.
 
@@ -123,16 +123,16 @@ def add_todict(
     """
 
     if location_path[0] == "":
-        d[cmd_name] = {"trailmap": full_trail, "parms": parms}
+        d[cmd_name] = {"trailmap": full_trail, "parms": params}
         return d
 
     if location_path[0] not in d:
         d[location_path[0]] = {}
 
     if len(location_path) > 1:
-        add_todict(d[location_path[0]], location_path[1:], cmd_name, full_trail, parms)
+        add_todict(d[location_path[0]], location_path[1:], cmd_name, full_trail, params)
     else:
-        d[location_path[0]][cmd_name] = {"trailmap": full_trail, "parms": parms}
+        d[location_path[0]][cmd_name] = {"trailmap": full_trail, "parms": params}
     return d
 
 
@@ -168,24 +168,24 @@ def initialize():
                 break
 
         if func:
-            parms = signature(func).parameters
+            params = signature(func).parameters
             parms_dict = {}
-            for parm in parms:
+            for param in params:
                 try:
-                    parms_dict[parm] = {
-                        "type": f"{parms[parm].annotation.__name__}",
+                    parms_dict[param] = {
+                        "type": f"{params[param].annotation.__name__}",
                         "default": None,
                         "required": False,
                     }
                     if (
-                        parms[parm].kind is Parameter.POSITIONAL_OR_KEYWORD
-                        and parms[parm].default is Parameter.empty
+                        params[param].kind is Parameter.POSITIONAL_OR_KEYWORD
+                        and params[param].default is Parameter.empty
                     ):
-                        parms_dict[parm]["required"] = True
-                    elif parms[parm].default is not Parameter.empty:
-                        parms_dict[parm]["default"] = parms[parm].default
+                        parms_dict[param]["required"] = True
+                    elif params[param].default is not Parameter.empty:
+                        parms_dict[param]["default"] = params[param].default
                 except:
-                    print(parm)
+                    print(param)
 
             index_dict = add_todict(index_dict, tmp, cmd_name, trail, parms_dict)
 
