@@ -62,7 +62,6 @@ from openbb_terminal.helper_funcs import parse_and_split_input
 from openbb_terminal.keys_model import first_time_user
 from openbb_terminal.common import feedparser_view
 from openbb_terminal.reports.reports_model import ipykernel_launcher
-from openbb_terminal.rest.main import app
 
 # pylint: disable=too-many-public-methods,import-outside-toplevel, too-many-function-args
 # pylint: disable=too-many-branches,no-member,C0302,too-many-return-statements
@@ -107,7 +106,6 @@ class TerminalController(BaseController):
         "sources",
         "forecast",
         "futures",
-        "rest",
     ]
 
     PATH = "/"
@@ -193,25 +191,6 @@ class TerminalController(BaseController):
         mt.add_menu("reports")
         console.print(text=mt.menu_text, menu="Home")
         self.update_runtime_choices()
-
-    def call_rest(self, other_args: List[str]) -> None:
-        import uvicorn
-        import socket
-
-        # TODO: do something besides this
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            if s.connect_ex(("localhost", 8172)) == 0:
-                print("Port 8172 already in use", file=sys.stderr)
-                self.queue.insert(0, "quit")
-                return
-        parse = argparse.ArgumentParser(
-            add_help=False,
-            prog="rest",
-            description="rest",
-        )
-        ns_parser = self.parse_known_args_and_warn(parse, other_args)
-        if ns_parser:
-            uvicorn.run(app, host="0.0.0.0", port=8172)
 
     def call_news(self, other_args: List[str]) -> None:
         """Process news command."""

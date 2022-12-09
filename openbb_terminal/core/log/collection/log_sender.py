@@ -131,7 +131,10 @@ class LogSender(Thread):
     def max_size_exceeded(self, file: Path) -> bool:
         """Check if the log file is bigger than 2MB."""
 
-        return file.stat().st_size > 2 * 1024 * 1024
+        try:
+            return file.stat().st_size > 2 * 1024 * 1024
+        except FileNotFoundError:
+            return False
 
     def send_path(self, path: Path, last: bool = False):
         """Only closed files should be sent."""
